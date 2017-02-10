@@ -1,5 +1,7 @@
 ##Beep
 
+![](https://media.giphy.com/media/UsF3DykKg8Tpm/giphy.gif)
+
 ###Import
 ```javascript
 /* Import it from the library */
