@@ -26,6 +26,9 @@ const ID = ((i) => () => i++)(0);
 export default {
   name: 'Notify',
   props: {
+    name: {
+      type: String
+    },
     position: {
       type: String,
       default: 'top right'
@@ -62,6 +65,10 @@ export default {
   },
   created() {
     Vue.notifications.$on('add', event => {
+      if (event.group !== this.name) {
+        return;
+      }
+
       var duration = typeof event.duration === 'number'
         ? event.duration
         : this.duration;

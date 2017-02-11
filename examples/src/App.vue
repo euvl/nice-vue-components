@@ -4,12 +4,14 @@
       Beeper
       <nice-beep class="inline-beep" color="#23d813" :frequency="1200"/>
     </h2>
-    tl;dr
-
+    <div>
+      tl;dr
+    </div>
     <h2>Notifications</h2>
-    <nice-notifications animation="fade" :duration="-1"/>
-
-    <button @click="notifyError">Notfiy about error</button>
+    <nice-notifications name="example-1" animation="fade"/>
+    <nice-notifications position="bottom left"/>
+    <button @click="notifyExample0">Example 1</button>
+    <button @click="notifyExample1">Example 2</button>
   </div>
 </template>
 
@@ -19,12 +21,24 @@ const ID = ((i) => () => i++)(0);
 export default {
   name: 'app',
   methods: {
-    notifyError() {
+    notifyExample0() {
       this.$notify({
         type: 'error',
+        group: 'example-1',
         title: 'Error message',
-        text: 'This is error #' + ID()
-      })
+        text: 'This is error message #' + ID()
+      });
+    },
+    notifyExample1() {
+      this.$notify({
+        type: 'warn',
+        duration: 10000,
+        title: 'Warning message',
+        text: `
+          Warning #${ID()} <br>
+          Notification will dissapear in 10 sec<br>
+          Rendering <b>HTML</b>`
+      });
     }
   }
 }
