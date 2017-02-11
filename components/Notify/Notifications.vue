@@ -1,12 +1,13 @@
 <template>
 <div class="notifications" :style="styles">
-  <transition-group name="fade" :css="false" @enter="enter" @leave="leave">
+  <transition-group :name="animation" mode="out-in">
     <div class="notification-wrapper"
           v-for="(item, index) in list"
-          v-show="item.state != 2"
-          :key="item.id"
-          :data-id="item.id">
-      <div :class="['notification', classes, item.type]" @click="destroy(item)">
+          v-show="true"
+          v-bind:key="item.id"
+          v-bind:data-id="item.id">
+      <div v-bind:class="['notification', classes, item.type]"
+           v-on:click.stop="destroy(item)">
         <div v-if="item.title" class="notification-title" v-html="item.title"></div>
         <div class="notification-content" v-html="item.text"></div>
       </div>
@@ -16,7 +17,6 @@
 </template>
 <script>
 import Vue from 'vue';
-import Velocity from 'velocity-animate';
 
 const VERT_OPTIONS = ['top', 'bottom'];
 const HORIZ_OPTIONS = ['left', 'center', 'right'];
@@ -32,26 +32,15 @@ export default {
     },
     classes: {
       type: String,
-      default: 'vue-notification'
+      default: 'default-style'
     },
     animation: {
-      type: Array,
-      default() {
-        return [
-          (el) => {
-            var height = el.clientHeight;
-
-            return {
-              height: [height, 0],
-              opacity: [1, 0]
-            }
-          },
-          {
-            height: 0,
-            opacity: 0
-          }
-        ]
-      }
+      type: String,
+      default: 'fade'
+    },
+    reverse: {
+      type: Boolean,
+      default: false
     },
     speed: {
       type: Number,
@@ -96,11 +85,9 @@ export default {
         }, item.length);
       }
 
-      if (this.botToTop) {
-        this.list.push(item);
-      } else {
-        this.list.unshift(item);
-      }
+      this.botToTop
+        ? this.list.push(item)
+        : this.list.unshift(item);
     });
   },
   computed: {
@@ -130,28 +117,11 @@ export default {
     }
   },
   methods: {
-    getAnimation(index, el) {
-      return typeof this.animation[index] === 'function'
-        ? this.animation[index].call(this, el)
-        : this.animation[index];
-    },
     destroy(note) {
       clearTimeout(note.timer);
       note.state = STATE.destroyed;
       this.list = this.list
         .filter(v => v.state !== STATE.destroyed);
-    },
-    enter(el, done) {
-      Velocity(el, this.getAnimation(0, el), {
-        duration: this.speed,
-        complete: done
-      });
-    },
-    leave(el, done) {
-      Velocity(el, this.getAnimation(1, el), {
-        duration: this.speed,
-        complete: done
-      });
     },
     positionAsArray() {
       if (typeof this.position === 'string') {
@@ -165,7 +135,7 @@ export default {
   }
 }
 </script>
-<style>
+<style lang="scss">
 .notifications {
   display: block;
   width: 300px;
@@ -191,7 +161,7 @@ export default {
   font-weight: 600;
 }
 
-.vue-notification {
+.notification.default-style {
   background: #44A4FC;
   border-left: 5px solid #187FE7;
   font-size: 12px;
@@ -199,23 +169,31 @@ export default {
   color: white;
   margin: 5px;
   margin-top: 0;
+
+  &.warn {
+    background: #ffb648;
+    border-left: 5px solid #f48a06;
+    color: white;
+  }
+
+  &.error {
+    background: #E54D42;
+    border-left: 5px solid #B82E24;
+    color: white;
+  }
+
+  &.success {
+    background: #68CD86;
+    border-left: 5px solid #42A85F;
+    color: white;
+  }
 }
 
-.vue-notification.warn {
-  background: #ffb648;
-  border-left: 5px solid #f48a06;
-  color: white;
+.fade-enter-active, .fade-leave-active {
+  transition: all 1s;
 }
 
-.vue-notification.error {
-  background: #E54D42;
-  border-left: 5px solid #B82E24;
-  color: white;
-}
-
-.vue-notification.success {
-  background: #68CD86;
-  border-left: 5px solid #42A85F;
-  color: white;
+.fade-enter, .fade-leave-to {
+  opacity: 0;
 }
 </style>

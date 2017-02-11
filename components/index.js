@@ -1,5 +1,5 @@
 import Beep from './Beep';
-//import Notify from './Notify';
+import Notify from './Notify';
 
-export {Beep};
-export default {Beep};
+export {Beep, Notify};
+export default {Beep, Notify};

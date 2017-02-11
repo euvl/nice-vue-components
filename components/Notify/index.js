@@ -9,15 +9,13 @@ var Notify = {
     Vue.notifications = new Vue();
 
     const $notify = (params) => {
-      if (typeof params === 'string') {
-        params = {
-          title: '',
-          text: params
+      if (typeof params !== 'undefined') {
+        if (typeof params !== 'object') {
+          params = {title: '', text: params};
         }
-      }
 
-      params = params || {};
-      Vue.notifications.$emit('add', params);
+        Vue.notifications.$emit('add', params);
+      }
     }
 
     Vue.prototype.$notify = $notify;

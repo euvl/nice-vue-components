@@ -1,21 +1,30 @@
 <template>
   <div id="app">
-  <!--  <nice-beep :position="[100, 200]"/>-->
     <h2>
       Beeper
       <nice-beep class="inline-beep" color="#23d813" :frequency="1200"/>
     </h2>
+    tl;dr
 
-    <h2>Notifications<h2/>
+    <h2>Notifications</h2>
+    <nice-notifications animation="fade" :duration="-1"/>
+
+    <button @click="notifyError">Notfiy about error</button>
   </div>
 </template>
 
 <script>
+const ID = ((i) => () => i++)(0);
+
 export default {
   name: 'app',
-  data () {
-    return {
-      msg: 'Welcome to Your Vue.js App'
+  methods: {
+    notifyError() {
+      this.$notify({
+        type: 'error',
+        title: 'Error message',
+        text: 'This is error #' + ID()
+      })
     }
   }
 }

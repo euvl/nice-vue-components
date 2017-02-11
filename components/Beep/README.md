@@ -10,7 +10,7 @@ import {Beep} from 'nice-vue-components';
 
 ###Use
 ```vue
-Default: 
+Default:
 <nice-beep />
 
 Customized:
@@ -23,5 +23,5 @@ Properties:
 | ---------- | ------- | ------------|
 | color      | String  | #ff0000     |
 | size       | Number  | 14 (px)     |
-| frequancy  | Number  | 3000 (ms)   |
+| frequency  | Number  | 3000 (ms)   |
 | active     | Boolean | true        |
