@@ -33,12 +33,12 @@ export default {
         'background': this.color,
         'border-radius': this.size / 2 + 'px',
         'animation-duration': this.frequency + 'ms'
-      }
+      };
     }
   }
 }
 </script>
-<style scoped lang="scss">
+<style lang="scss">
 @keyframes woopwoop {
   0% {
       transform: scale(1);
@@ -55,8 +55,8 @@ export default {
 
 .beep {
   position: absolute;
-  left: 100px;
-  top: 50px;
+  left: 0;
+  top: 0;
 
   .beep-overlay {
     position: absolute;
