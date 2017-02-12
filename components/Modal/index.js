@@ -13,7 +13,7 @@ const VueModal = {
       },
       hide(name, params) {
         VueModal.event.$emit('toggle', name, false, params);
-      },
+      }
     };
 
     Object.defineProperty(Vue.prototype, '$modal', {

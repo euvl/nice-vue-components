@@ -4,16 +4,10 @@
        @mousedown.stop="toggle(false)">
     <transition :name="transition">
       <div v-if="visibleModal"
-           v-bind:class="modalclass"
-           v-bind:style="styles"
-           v-on:mousedown.stop
+           v-bind:class="modalClass"
+           v-bind:style="modalStyle"
+           v-on:mousedown.stop="mousedown"
            ref="modal">
-        <template v-if="withTitle">
-          <div class="modal-title">
-            <slot name="title-left"></slot>
-            <slot name="title-right"></slot>
-          </div>
-        </template>
         <slot></slot>
         <resizer v-if="resizable" @resize="resize"/>
       </div>
@@ -21,6 +15,7 @@
   </div>
 </template>
 <script>
+  import util from '../util';
   import Vue from 'vue';
   import Modal from './index';
   import Resizer from './Resizer.vue';
@@ -30,16 +25,13 @@
       required: true,
       type: [String, Number],
     },
-    withTitle: {
-      type: Boolean,
-      default: false,
-    },
     delay: {
       type: Number,
       default: 0,
     },
-    position: {
-      type: Array,
+    draggable: {
+      type: Boolean,
+      default: false
     },
     resizable: {
       type: Boolean,
@@ -53,7 +45,8 @@
       default: 'nice-modal',
     },
     width: {
-      type: Number
+      type: Number,
+      default: 600
     },
   };
 
@@ -65,11 +58,17 @@
     },
     data() {
       return {
-        //self: null,
         visible: false,
         visibleModal: false,
         visibleOverlay: false,
-        actualWidth: this.width
+
+        modalWidth: this.width,
+        windowWidth: window.innerWidth,
+
+        position: {
+          left: (window.innerWidth - this.width) / 2,
+          top: 100
+        }
       };
     },
     watch: {
@@ -95,24 +94,33 @@
         }
       });
 
-      //this.self = this.$refs.modal;
+      window.addEventListener('resize', () => {
+        this.windowWidth = window.innerWidth;
+      });
     },
     computed: {
-      modalclass() {
+      modalClass() {
         return ['modal', this.classes];
       },
-      styles() {
-        if (this.actualWidth) {
-          return {
-            'margin-left': (-this.actualWidth / 2) + 'px',
-            'width': this.actualWidth + 'px',
-          };
-        }
-      },
+      modalStyle() {
+        return this.getPosition()
+      }
     },
     methods: {
+      getPosition() {
+        return {
+          top: this.position.top + 'px',
+          left: this.position.left + 'px'
+        }
+      },
       resize(event) {
-        this.actualWidth = event.size.width;
+        //var centerX = this.position.left + this.modalWidth / 2;
+        //console.log(event.size.width - this.modalWidth);
+        //
+        this.modalWidth = event.size.width;
+        //this.position.left =
+        //this.position.left =
+        //console.log(event.size);
       },
       toggle(state, params) {
         const before = this.visible ? 'before-close' : 'before-open';
@@ -143,6 +151,28 @@
           this.$emit(after, afterEvent);
         }
       },
+      mousedown(event) {
+        if (!this.draggable) return;
+
+        var startLeft = event.screenX;
+        var startTop = event.screenY;
+
+        var currentLeft = this.position.left;
+        var currentTop = this.position.top;
+
+        var mousemove = (event) => {
+          this.position.left = currentLeft - startLeft + event.screenX;
+          this.position.top = currentTop - startTop + event.screenY;
+        };
+
+        var mouseup = (event) => {
+          window.removeEventListener('mousemove', mousemove);
+          window.removeEventListener('mouseup', mousemove);
+        };
+
+        window.addEventListener('mousemove', mousemove);
+        window.addEventListener('mouseup', mouseup);
+      }
     },
   };
 </script>
@@ -163,12 +193,10 @@
 
       background-color: white;
 
-      left: 50%;
-      top: 100px;
-
+      //left: 50%;
+      //top: 100px;
       width: 600px;
-      margin-left: -300px;
-
+      //margin-left: -300px;
     }
   }
 

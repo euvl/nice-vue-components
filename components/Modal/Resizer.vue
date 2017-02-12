@@ -3,11 +3,11 @@
   </div>
 </template>
 <script>
+import util from '../util';
 export default {
   name: 'Resizer',
   data() {
     return {
-      clickCount: 0,
       clicked: false,
       min: {
         height: 50,
@@ -20,13 +20,13 @@ export default {
     this.$el.addEventListener('mousedown', this.start, false);
   },
   methods: {
-    start() {
-      //todo if click count === 2, go to fullscreen
-      this.clickCount++;
+    start(event) {
       this.clicked = true;
 
       window.addEventListener('mousemove', this.mousemove, false);
       window.addEventListener('mouseup', this.stop, false);
+
+      util.stopEvent(event);
     },
     stop() {
       this.clicked = false;
@@ -40,10 +40,6 @@ export default {
       });
     },
     mousemove(event) {
-      if (this.clickCount !== 0) {
-        this.clickCount = 0;
-      }
-
       this.resize(event);
     },
     resize(event) {

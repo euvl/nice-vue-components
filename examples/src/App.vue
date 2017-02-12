@@ -15,11 +15,10 @@
     <button @click="notifyExample1">Example 2</button>
 
     <h2>Modals</h2>
-    <nice-modal name="example-modal" :resizable="true">
+    <nice-modal name="example-modal" :draggable="true" :resizable="true">
       <div style="padding: 10px">
         <div>This is a modal.</div>
         <div>Click outside of the window to close it.</div>
-        <div>If</div>
       </div>
     </nice-modal>
     <button @click="modalExample0">Example 1</button>

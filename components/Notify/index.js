@@ -13,7 +13,6 @@ var Notify = {
         if (typeof params !== 'object') {
           params = {title: '', text: params};
         }
-
         Vue.notifications.$emit('add', params);
       }
     }
