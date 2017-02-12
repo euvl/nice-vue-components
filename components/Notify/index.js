@@ -18,7 +18,9 @@ var Notify = {
       }
     }
 
-    Vue.prototype.$notify = $notify;
+    Object.defineProperty(Vue.prototype, '$notify', {
+      get: () => $notify
+    });
     Vue.component('nice-notifications', Notifications);
   }
 }

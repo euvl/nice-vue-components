@@ -7,11 +7,22 @@
     <div>
       tl;dr
     </div>
+
     <h2>Notifications</h2>
     <nice-notifications name="example-1" animation="fade"/>
     <nice-notifications position="bottom left"/>
     <button @click="notifyExample0">Example 1</button>
     <button @click="notifyExample1">Example 2</button>
+
+    <h2>Modals</h2>
+    <nice-modal name="example-modal" :resizable="true">
+      <div style="padding: 10px">
+        <div>This is a modal.</div>
+        <div>Click outside of the window to close it.</div>
+        <div>If</div>
+      </div>
+    </nice-modal>
+    <button @click="modalExample0">Example 1</button>
   </div>
 </template>
 
@@ -34,11 +45,16 @@ export default {
         type: 'warn',
         duration: 10000,
         title: 'Warning message',
-        text: `
+        text:
+          `
           Warning #${ID()} <br>
           Notification will dissapear in 10 sec<br>
-          Rendering <b>HTML</b>`
+          Rendering <b>HTML</b>
+          `
       });
+    },
+    modalExample0() {
+      this.$modal.show('example-modal');
     }
   }
 }
