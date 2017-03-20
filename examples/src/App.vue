@@ -15,10 +15,29 @@
     <button @click="notifyExample1">Example 2</button>
 
     <h2>Modals</h2>
-    <nice-modal name="example-modal" :draggable="true" :resizable="true">
-      <div style="padding: 10px">
-        <div>This is a modal.</div>
-        <div>Click outside of the window to close it.</div>
+    <nice-modal name="example-modal"
+                transition="nice-modal-fade"
+                :delay="200"
+                :adaptive="true"
+                :resizable="true">
+      <div style="height: 100%; box-sizing: border-box; padding: 10px; font-size: 13px; overflow: auto">
+          Appropriately exploit professional infrastructures rather than unique
+          growth strategies. Assertively build leveraged growth strategies
+          vis-a-vis multimedia based vortals. Progressively simplify
+          cross-platform value through interactive imperatives. Objectively
+          implement enabled web services after plug-and-play ROI. Distinctively
+          impact inexpensive schemas before installed base imperatives.
+          Holisticly benchmark pandemic process improvements without wireless
+          experiences.
+          Efficiently create worldwide partnerships after tactical vortals.
+          Uniquely productize enabled platforms vis-a-vis timely processes.
+          Conveniently unleash standards compliant niches through highly
+          efficient testing procedures. Rapidiously enable pandemic niche
+          markets whereas viral markets.
+          Assertively simplify alternative partnerships and error-free
+          e-commerce. Professionally formulate 24/365 internal or "organic"
+          sources through equity invested mindshare. Globally redefine unique
+          best practices for.
       </div>
     </nice-modal>
     <button @click="modalExample0">Example 1</button>

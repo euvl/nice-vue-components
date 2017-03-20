@@ -1,73 +1,89 @@
 <template>
-  <div v-if="visibleOverlay"
-       class="nice-modal-overlay"
-       @mousedown.stop="toggle(false)">
-    <transition :name="transition">
-      <div v-if="visibleModal"
-           v-bind:class="modalClass"
-           v-bind:style="modalStyle"
-           v-on:mousedown.stop="mousedown"
-           ref="modal">
-        <slot></slot>
-        <resizer v-if="resizable" @resize="resize"/>
-      </div>
-    </transition>
-  </div>
+  <transition name="overlay-fade">
+    <div v-if="visibility.overlay"
+         class="nice-modal-overlay"
+         @mousedown.stop="toggle(false)">
+      <transition :name="transition">
+        <div v-if="visibility.modal"
+             v-bind:class="modalClass"
+             v-bind:style="modalStyle"
+             v-on:mousedown.stop
+             ref="modal">
+          <slot></slot>
+          <resizer v-if="resizable" @resize="resize"/>
+        </div>
+      </transition>
+    </div>
+  </transition>
 </template>
 <script>
-  import util from '../util';
   import Vue from 'vue';
   import Modal from './index';
   import Resizer from './Resizer.vue';
 
-  const props = {
-    name: {
-      required: true,
-      type: [String, Number],
-    },
-    delay: {
-      type: Number,
-      default: 0,
-    },
-    draggable: {
-      type: Boolean,
-      default: false
-    },
-    resizable: {
-      type: Boolean,
-      default: false
-    },
-    transition: {
-      type: String,
-    },
-    classes: {
-      type: [String, Array],
-      default: 'nice-modal',
-    },
-    width: {
-      type: Number,
-      default: 600
-    },
-  };
-
   export default {
     name: 'Modal',
-    props,
+    props: {
+      name: {
+        required: true,
+        type: [String, Number],
+      },
+      delay: {
+        type: Number,
+        default: 0,
+      },
+      resizable: {
+        type: Boolean,
+        default: false
+      },
+      adaptive: {
+        type: Boolean,
+        default: false
+      },
+      transition: {
+        type: String,
+      },
+      classes: {
+        type: [String, Array],
+        default: 'nice-modal',
+      },
+      width: {
+        type: Number,
+        default: 600
+      },
+      height: {
+        type: Number,
+        default: 300
+      },
+      minWidth: {
+        type: Number,
+        default: 0
+      },
+      minHeight: {
+        type: Number,
+        default: 0
+      }
+    },
     components: {
       Resizer
     },
     data() {
       return {
         visible: false,
-        visibleModal: false,
-        visibleOverlay: false,
 
-        modalWidth: this.width,
-        windowWidth: window.innerWidth,
+        visibility: {
+          modal: false,
+          overlay: false
+        },
 
-        position: {
-          left: (window.innerWidth - this.width) / 2,
-          top: 100
+        modal: {
+          width: this.width,
+          height: this.height
+        },
+
+        window: {
+          width: window.innerWidth,
+          height: window.innerWidth
         }
       };
     },
@@ -75,15 +91,15 @@
       visible(value) {
         if (this.delay > 0) {
           if (value) {
-            this.visibleOverlay = true;
-            setTimeout(() => this.visibleModal = true, this.delay);
+            this.visibility.overlay = true;
+            setTimeout(() => this.visibility.modal = true, this.delay);
           } else {
-            this.visibleModal = false;
-            setTimeout(() => this.visibleOverlay = false, this.delay);
+            this.visibility.modal = false;
+            setTimeout(() => this.visibility.overlay = false, this.delay);
           }
         } else {
-          this.visibleOverlay = value;
-          Vue.nextTick(() => this.visibleModal = value);
+          this.visibility.overlay = value;
+          Vue.nextTick(() => this.visibility.modal = value);
         }
       },
     },
@@ -94,97 +110,101 @@
         }
       });
 
-      window.addEventListener('resize', () => {
-        this.windowWidth = window.innerWidth;
-      });
+      window.addEventListener('resize', this.onWindowResize);
+    },
+    beforeMount() {
+      this.onWindowResize();
     },
     computed: {
+      position() {
+        return {
+          left: (this.window.width - this.modal.width) / 2,
+          top: (this.window.height - this.modal.height) / 2
+        }
+      },
       modalClass() {
         return ['modal', this.classes];
       },
       modalStyle() {
-        return this.getPosition()
+        return {
+          top: this.position.top + 'px',
+          left: this.position.left + 'px',
+          width: this.modal.width + 'px',
+          height: this.modal.height + 'px'
+        }
       }
     },
     methods: {
-      getPosition() {
-        return {
-          top: this.position.top + 'px',
-          left: this.position.left + 'px'
+      onWindowResize() {
+        this.window.width = window.innerWidth;
+        this.window.height = window.innerHeight;
+
+        if (this.adaptive) {
+          this.modal.width = this.window.width > this.width
+            ? this.width
+            : this.window.width
+
+          this.modal.height = this.window.height > this.height
+            ? this.height
+            : this.window.height;
         }
+      },
+      genEventObject(params) {
+        return Vue.util.extend(
+          {
+            name: this.name,
+            ref: this.$refs.modal,
+            timestamp: Date.now()
+          },
+          params || {});
       },
       resize(event) {
-        //var centerX = this.position.left + this.modalWidth / 2;
-        //console.log(event.size.width - this.modalWidth);
-        //
-        this.modalWidth = event.size.width;
-        //this.position.left =
-        //this.position.left =
-        //console.log(event.size);
+        this.modal.width = event.size.width;
+
+        let resizeEvent = this.genEventObject({
+          size: this.modal
+        });
+
+        this.$emit('resize', resizeEvent);
       },
       toggle(state, params) {
-        const before = this.visible ? 'before-close' : 'before-open';
-        const after = this.visible ? 'closed' : 'opened';
+        const beforeEventName = this.visible ? 'before-close' : 'before-open';
+        const afterEventName = this.visible ? 'closed' : 'opened';
 
-        var abort = false;
+        let stopEventExecution = false;
 
-        var beforeEvent = {
-          name: this.name,
-          state: state,
-          params: params || {},
-          abort () {
-            abort = true
-          }
-        }
+        const beforeEvent = this.genEventObject({
+          stop: () => stopEventExecution = false,
+          state,
+          params
+        });
 
-        this.$emit(before, beforeEvent);
+        this.$emit(beforeEventName, beforeEvent);
 
-        if (!abort) {
+        if (!stopEventExecution) {
           this.visible = !!state;
 
-          var afterEvent = {
-            name: this.name,
-            params: params || {},
-            state: state
-          }
+          const afterEvent = this.genEventObject({
+            state,
+            params
+          });
 
-          this.$emit(after, afterEvent);
+          this.$emit(afterEventName, afterEvent);
         }
       },
-      mousedown(event) {
-        if (!this.draggable) return;
-
-        var startLeft = event.screenX;
-        var startTop = event.screenY;
-
-        var currentLeft = this.position.left;
-        var currentTop = this.position.top;
-
-        var mousemove = (event) => {
-          this.position.left = currentLeft - startLeft + event.screenX;
-          this.position.top = currentTop - startTop + event.screenY;
-        };
-
-        var mouseup = (event) => {
-          window.removeEventListener('mousemove', mousemove);
-          window.removeEventListener('mouseup', mousemove);
-        };
-
-        window.addEventListener('mousemove', mousemove);
-        window.addEventListener('mouseup', mouseup);
-      }
     },
   };
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
   .nice-modal-overlay {
     position: fixed;
     left: 0;
     top: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.2);
     z-index: 999;
+    opacity: 1;
 
     .modal {
       position: relative;
@@ -192,16 +212,19 @@
       box-sizing: border-box;
 
       background-color: white;
-
-      //left: 50%;
-      //top: 100px;
-      width: 600px;
-      //margin-left: -300px;
     }
   }
 
+  .overlay-fade-enter-active, .overlay-fade-leave-active {
+    transition: all 0.2s;
+  }
+
+  .overlay-fade-enter, .overlay-fade-leave-active {
+    opacity: 0;
+  }
+
   .nice-modal-fade-enter-active, .nice-modal-fade-leave-active {
-    transition: all .3s;
+    transition: all 0.5s;
   }
 
   .nice-modal-fade-enter, .nice-modal-fade-leave-active {

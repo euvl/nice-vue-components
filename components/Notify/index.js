@@ -1,9 +1,10 @@
 import Vue from 'vue';
-import Notifications from './Notifications.vue';
 
-var Notify = {
+var plugin = {
   install(Vue) {
-    if (this.installed) return;
+/*    if (this.installed) {
+      return;
+    }
 
     this.installed = true;
     Vue.notifications = new Vue();
@@ -20,9 +21,9 @@ var Notify = {
     Object.defineProperty(Vue.prototype, '$notify', {
       get: () => $notify
     });
-    Vue.component('nice-notifications', Notifications);
+    Vue.component('nice-notifications', Notifications);*/
   }
 }
 
-Vue.use(Notify);
-export default Notify;
+Vue.use(plugin);
+export default plugin;
